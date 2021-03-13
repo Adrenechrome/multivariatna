@@ -59,15 +59,18 @@ recod.likert <- function(x, inv=FALSE){
 
 dat$yrbrn <- 2018 - recod.likert(dat$yrbrn)
 
+
+
+
+
+##### PETA ALINEJA
+
+# faktorje v numericne za lazje procesiranje
 for (i in 1:ncol(dat)) {
   if(is.factor(dat[,i])){
     dat[,i] <- recod.likert(dat[,i])
   }
 }
-
-
-
-##### PETA ALINEJA
 
 library(dplyr)
 library(ggplot2)
