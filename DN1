@@ -1,4 +1,3 @@
-
 library(foreign)
 
 dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
@@ -19,15 +18,14 @@ dat <- dat[,c("ipcrtiv",
               "yrbrn",
               "rlgdnm")]
 
-# Spremenim v starost in ne leta rojstva
-dat$yrbrn <- 2018 - dat$yrbrn
-
 # v faktorje
 for (i in 1:ncol(dat)) {
   if(is.character(dat[,i])){
     dat[,i] <- as.factor(dat[,i])
   }
 }
+
+dat$yrbrn <- as.numeric(dat$yrbrn)
 
 # PRVA LIKERTOVA
 # "ipcrtiv", - Important to think new ideas and being creative
@@ -45,13 +43,7 @@ for (i in 1:ncol(dat)) {
 # "ipmodst", - Important to be humble and modest, not draw attention
 # "imptrad" - - Important to follow traditions and customs
 
-
-
-for (i in 1:ncol(dat)) {
-  if(is.factor(dat[,i])){
-    dat[,i] <- recod.likert(dat[,i])
-  }
-}
+# Spremenim v starost in ne leta rojstva
 
 recod.likert <- function(x, inv=FALSE){
   #assert("Vzame samo numericne vektorje in faktorje - ce imas string character vektorje ga najprej as.numeric()", is.numeric(x)|is.factor(x)==TRUE)
@@ -64,6 +56,16 @@ recod.likert <- function(x, inv=FALSE){
     levels(x)<-paste0("", sort(seq(1:nlevels(x)), decreasing = TRUE))
     x<-as.numeric(as.character(x))}
 }
+
+dat$yrbrn <- 2018 - recod.likert(dat$yrbrn)
+
+for (i in 1:ncol(dat)) {
+  if(is.factor(dat[,i])){
+    dat[,i] <- recod.likert(dat[,i])
+  }
+}
+
+
 
 ##### PETA ALINEJA
 
@@ -157,4 +159,3 @@ plot(jitter(dat2$lik1), jitter(dat2$lik2))
 plot(dat2$lik1_BZ, dat2$lik2_BZ)
 
 par(mfrow=c(1,1))
-
