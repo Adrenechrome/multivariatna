@@ -1,4 +1,7 @@
+##### PAKETI #####
 library(foreign)
+
+############ PRIPRAVA PODATKOV ##############
 
 # dat je ime glavne datoteke, k bo vsebovala vse najine podatke
 dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
@@ -17,9 +20,28 @@ dat <- dat[,c("ipcrtiv",
               "ipmodst",
               "imptrad")]
 
+##### POMENI SPREMENLJIVK
+# PRVI SKLOP
+# "ipcrtiv", - Important to think new ideas and being creative
+# "impfree", - Important to make own decisions and be free
+# "impdiff", - Important to try new and different things in life
+# "ipadvnt", - Important to seek adventures and have an exciting life
+# "ipgdtim", - Important to have a good time
+# "impfun", - Important to seek fun and things that give pleasure
+
+# DRUGI SKLOP
+# "impsafe", - Important to live in secure and safe surroundings
+# "ipstrgv", - Important that government is strong and ensures safety
+# "ipfrule", - Important to do what is told and follow rules
+# "ipbhprp", - Important to behave properly
+# "ipmodst", - Important to be humble and modest, not draw attention
+# "imptrad" - - Important to follow traditions and customs
 # v faktorje
+
 for (i in 1:ncol(dat)) {
   if(is.character(dat[,i])){
     dat[,i] <- as.factor(dat[,i])
   }
 }
+
+############ KONEC PRIPRAVE PODATKOV #############
