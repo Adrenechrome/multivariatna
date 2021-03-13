@@ -1,8 +1,5 @@
 
-##### PAKETI #####
 library(foreign)
-
-##### PODATKI #####
 
 dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
 
@@ -22,7 +19,10 @@ dat <- dat[,c("ipcrtiv",
               "yrbrn",
               "rlgdnm")]
 
-# V faktorje
+# Spremenim v starost in ne leta rojstva
+dat$yrbrn <- 2018 - dat$yrbrn
+
+# v faktorje
 for (i in 1:ncol(dat)) {
   if(is.character(dat[,i])){
     dat[,i] <- as.factor(dat[,i])
@@ -45,14 +45,13 @@ for (i in 1:ncol(dat)) {
 # "ipmodst", - Important to be humble and modest, not draw attention
 # "imptrad" - - Important to follow traditions and customs
 
-##### PETA ALINEJA
 
-library(dplyr)
-library(ggplot2)
-library(GGally)
 
-## v numericne
-
+for (i in 1:ncol(dat)) {
+  if(is.factor(dat[,i])){
+    dat[,i] <- recod.likert(dat[,i])
+  }
+}
 
 recod.likert <- function(x, inv=FALSE){
   #assert("Vzame samo numericne vektorje in faktorje - ce imas string character vektorje ga najprej as.numeric()", is.numeric(x)|is.factor(x)==TRUE)
@@ -66,11 +65,11 @@ recod.likert <- function(x, inv=FALSE){
     x<-as.numeric(as.character(x))}
 }
 
-for (i in 1:ncol(dat)) {
-  if(is.factor(dat[,i])){
-    dat[,i] <- recod.likert(dat[,i])
-  }
-}
+##### PETA ALINEJA
+
+library(dplyr)
+library(ggplot2)
+library(GGally)
 
 # preverjanje povezav
 
@@ -79,7 +78,6 @@ ggpairs(data = dat[1:12])
 ## prvih 6 ima povezavo nad 0.1 ter p-vrednost pod 0.0,, enako velja za zadnjih 6 - zato izberemo te
 ## Narejeno pred dodajanjem nominalnih spremenljivk
 
-### NOVE LIKERTOVE LESTVICE
 # z zaokrozevanjem
 
 dat2 <- dat %>% mutate(lik1= round((ipcrtiv +
@@ -159,5 +157,4 @@ plot(jitter(dat2$lik1), jitter(dat2$lik2))
 plot(dat2$lik1_BZ, dat2$lik2_BZ)
 
 par(mfrow=c(1,1))
-
 
