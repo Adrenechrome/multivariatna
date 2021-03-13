@@ -1,12 +1,11 @@
+
 ##### PAKETI #####
 library(foreign)
 
-############ PRIPRAVA PODATKOV ##############
+##### PODATKI #####
 
-# dat je ime glavne datoteke, k bo vsebovala vse najine podatke
 dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
 
-# izbor spremenljivk
 dat <- dat[,c("ipcrtiv",
               "impfree",
               "impdiff",
@@ -18,10 +17,19 @@ dat <- dat[,c("ipcrtiv",
               "ipfrule",
               "ipbhprp",
               "ipmodst",
-              "imptrad")]
+              "imptrad",
+              "gndr",
+              "yrbrn",
+              "rlgdnm")]
 
-##### POMENI SPREMENLJIVK
-# PRVI SKLOP
+# V faktorje
+for (i in 1:ncol(dat)) {
+  if(is.character(dat[,i])){
+    dat[,i] <- as.factor(dat[,i])
+  }
+}
+
+# PRVA LIKERTOVA
 # "ipcrtiv", - Important to think new ideas and being creative
 # "impfree", - Important to make own decisions and be free
 # "impdiff", - Important to try new and different things in life
@@ -29,7 +37,7 @@ dat <- dat[,c("ipcrtiv",
 # "ipgdtim", - Important to have a good time
 # "impfun", - Important to seek fun and things that give pleasure
 
-# DRUGI SKLOP
+# DRUGA LIKERTOVA
 # "impsafe", - Important to live in secure and safe surroundings
 # "ipstrgv", - Important that government is strong and ensures safety
 # "ipfrule", - Important to do what is told and follow rules
@@ -37,12 +45,119 @@ dat <- dat[,c("ipcrtiv",
 # "ipmodst", - Important to be humble and modest, not draw attention
 # "imptrad" - - Important to follow traditions and customs
 
+##### PETA ALINEJA
 
-# v faktorje
+library(dplyr)
+library(ggplot2)
+library(GGally)
+
+## v numericne
+
+
+recod.likert <- function(x, inv=FALSE){
+  #assert("Vzame samo numericne vektorje in faktorje - ce imas string character vektorje ga najprej as.numeric()", is.numeric(x)|is.factor(x)==TRUE)
+  if (inv==FALSE){
+    x<-factor(x)
+    levels(x)<-paste0("", seq(1:nlevels(x)))
+    x<-as.numeric(as.character(x))}
+  else {
+    x<-factor(x)
+    levels(x)<-paste0("", sort(seq(1:nlevels(x)), decreasing = TRUE))
+    x<-as.numeric(as.character(x))}
+}
+
 for (i in 1:ncol(dat)) {
-  if(is.character(dat[,i])){
-    dat[,i] <- as.factor(dat[,i])
+  if(is.factor(dat[,i])){
+    dat[,i] <- recod.likert(dat[,i])
   }
 }
 
-############ KONEC PRIPRAVE PODATKOV #############
+# preverjanje povezav
+
+ggpairs(data = dat[1:12])
+
+## prvih 6 ima povezavo nad 0.1 ter p-vrednost pod 0.0,, enako velja za zadnjih 6 - zato izberemo te
+## Narejeno pred dodajanjem nominalnih spremenljivk
+
+### NOVE LIKERTOVE LESTVICE
+# z zaokrozevanjem
+
+dat2 <- dat %>% mutate(lik1= round((ipcrtiv +
+                                      impfree +
+                                      impdiff +
+                                      ipadvnt +
+                                      ipgdtim +
+                                      impfun)/6))
+
+dat2 <- dat2 %>% mutate(lik2= round((impsafe +
+                                       ipstrgv +
+                                       ipfrule +
+                                       ipbhprp +
+                                       ipmodst +
+                                       imptrad)/6))
+
+# brez zaokrozevanja
+
+dat2 <- dat2 %>% mutate(lik1_BZ= (ipcrtiv +
+                                      impfree +
+                                      impdiff +
+                                      ipadvnt +
+                                      ipgdtim +
+                                      impfun)/6)
+
+dat2 <- dat2 %>% mutate(lik2_BZ= (impsafe +
+                                       ipstrgv +
+                                       ipfrule +
+                                       ipbhprp +
+                                       ipmodst +
+                                       imptrad)/6)
+
+dat2 <- na.omit(dat2)
+
+
+
+###### SESTA ALINEJA ######
+
+povezava.frame <- function(sprem, data){
+  # vzame odvisno spremenljivko in dataframe
+  # vrne dataframe z p-vrednostmi in korelacijskimi koeficienti med odvisno in vsemi ostalimi v dataframu
+  rezultati <- data.frame(ime = names(data),
+                          p.value = vector(mode = "numeric", length = ncol(data)),
+                          cor = vector(mode = "numeric", length = ncol(data)))
+  rezultati[rezultati==0] <- NA
+  podatki <- data
+  x <- data[,deparse(substitute(sprem))]
+  for (i in c(1:ncol(podatki))) {
+    y <- podatki[,i]
+    if (is.factor(x) & is.factor(y)){                      
+      rezultati$p.value[i] <- round(chisq.test(x,y)$p.value, 5)}                   
+    else if (is.factor(x) & is.numeric(y) | is.factor(y) & is.numeric(x)){ 
+      if (nlevels(x)==2 | nlevels(y)==2){
+        if (is.factor(x)){
+          rezultati$p.value[i] <- round(t.test(y ~ x)$p.value, 5)}
+        else if (is.factor(y)){
+          rezultati$p.value[i] <- round(t.test(x ~ y)$p.value, 5)
+        }}
+      else if (nlevels(x)>2 | nlevels(y)>2){
+        rezultati$p.value[i] <- round(summary(aov(x~y))[[1]][["Pr(>F)"]][1], 5)}}
+    else if (is.numeric(c(x,y))){                                      
+      rezultati$p.value[i] <- round(cor.test(x, y, method = "pearson")$p.value, 5)
+      rezultati$cor[i] <- round(as.numeric(cor.test(x, y, method = "pearson")$estimate),5)}}
+  return(rezultati)
+}
+
+povezava.frame(lik1, dat2)
+povezava.frame(lik2, dat2)
+
+# Ploti
+
+par(mfrow=c(1,2))
+# zokrozevanje, jitter
+plot(jitter(dat2$lik1), jitter(dat2$lik2))
+
+# brez zaokrozevanja
+plot(dat2$lik1_BZ, dat2$lik2_BZ)
+
+par(mfrow=c(1,1))
+
+
