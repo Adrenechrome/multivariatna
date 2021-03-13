@@ -17,6 +17,7 @@ dat <- dat[,c("ipcrtiv",
               "ipmodst",
               "imptrad")]
 
+# v faktorje
 for (i in 1:ncol(dat)) {
   if(is.character(dat[,i])){
     dat[,i] <- as.factor(dat[,i])
