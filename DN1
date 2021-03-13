@@ -27,6 +27,10 @@ for (i in 1:ncol(dat)) {
 
 dat$yrbrn <- as.numeric(dat$yrbrn)
 
+
+
+dat2 <- na.omit(dat2)
+
 # PRVA LIKERTOVA
 # "ipcrtiv", - Important to think new ideas and being creative
 # "impfree", - Important to make own decisions and be free
@@ -102,20 +106,18 @@ dat2 <- dat2 %>% mutate(lik2= round((impsafe +
 # brez zaokrozevanja
 
 dat2 <- dat2 %>% mutate(lik1_BZ= (ipcrtiv +
-                                      impfree +
-                                      impdiff +
-                                      ipadvnt +
-                                      ipgdtim +
-                                      impfun)/6)
+                                    impfree +
+                                    impdiff +
+                                    ipadvnt +
+                                    ipgdtim +
+                                    impfun)/6)
 
 dat2 <- dat2 %>% mutate(lik2_BZ= (impsafe +
-                                       ipstrgv +
-                                       ipfrule +
-                                       ipbhprp +
-                                       ipmodst +
-                                       imptrad)/6)
-
-dat2 <- na.omit(dat2)
+                                    ipstrgv +
+                                    ipfrule +
+                                    ipbhprp +
+                                    ipmodst +
+                                    imptrad)/6)
 
 
 
