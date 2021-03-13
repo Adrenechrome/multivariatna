@@ -36,8 +36,9 @@ dat <- dat[,c("ipcrtiv",
 # "ipbhprp", - Important to behave properly
 # "ipmodst", - Important to be humble and modest, not draw attention
 # "imptrad" - - Important to follow traditions and customs
-# v faktorje
 
+
+# v faktorje
 for (i in 1:ncol(dat)) {
   if(is.character(dat[,i])){
     dat[,i] <- as.factor(dat[,i])
