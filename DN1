@@ -3,6 +3,7 @@ library(foreign)
 # dat je ime glavne datoteke, k bo vsebovala vse najine podatke
 dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
 
+# izbor spremenljivk
 dat <- dat[,c("ipcrtiv",
               "impfree",
               "impdiff",
