@@ -149,6 +149,7 @@ povezava.frame <- function(sprem, data){
 povezava.frame(lik1, dat2)
 povezava.frame(lik2, dat2)
 
+######## SEDMA ALINEJA #######
 # Ploti
 
 par(mfrow=c(1,2))
