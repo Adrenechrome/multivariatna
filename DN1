@@ -1,0 +1,23 @@
+library(foreign)
+
+dat <- read.spss("ESS9CH.sav", to.data.frame = TRUE)
+
+str(dat)
+dat <- dat[,c("ipcrtiv",
+              "impfree",
+              "impdiff",
+              "ipadvnt",
+              "ipgdtim",
+              "impfun",
+              "impsafe",
+              "ipstrgv",
+              "ipfrule",
+              "ipbhprp",
+              "ipmodst",
+              "imptrad")]
+
+for (i in 1:ncol(dat)) {
+  if(is.character(dat[,i])){
+    dat[,i] <- as.factor(dat[,i])
+  }
+}
